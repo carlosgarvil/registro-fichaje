@@ -160,6 +160,19 @@ h1 span {
     z-index: 2001;
 }
 
+/* Ensure large content (images, tables) fit inside modal and become scrollable */
+.modal-content {
+    max-height: calc(100vh - 6rem);
+    overflow: auto;
+}
+
+/* Make any images inside modal responsive */
+.modal-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
 .modal-close {
     position: absolute;
     right: 12px;
@@ -179,6 +192,13 @@ h1 span {
 .modal-content ul {
     margin-left: 1.1rem;
     margin-bottom: 0.5rem;
+}
+.modal-img{
+    text-align: center;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .file-name {
