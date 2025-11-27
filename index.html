@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Control de Fichaje - IES Polígono Sur</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-darker: #020617;
+            --surface: #1e293b;
+            --surface-light: #334155;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .controls {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .file-upload {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .file-upload label {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .file-upload label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-name {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        select {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            color: var(--text);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.6s ease-out 0.1s both;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px var(--shadow);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .table-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 70vh;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            background: var(--bg-dark);
+            z-index: 10;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+
+        th.teacher-col {
+            position: sticky;
+            left: 0;
+            background: var(--bg-dark);
+            z-index: 11;
+            min-width: 250px;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+
+        td.teacher-name {
+            position: sticky;
+            left: 0;
+            background: var(--surface);
+            font-weight: 500;
+            text-align: left;
+            z-index: 5;
+            border-right: 1px solid var(--border);
+        }
+
+        tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        tbody tr:hover {
+            background: var(--surface-light);
+        }
+
+        tbody tr:hover td.teacher-name {
+            background: var(--surface-light);
+        }
+
+        .status-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .status-complete {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .status-partial {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .status-missing {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .status-leave {
+            background: rgba(148, 163, 184, 0.2);
+            color: var(--text-muted);
+        }
+
+        .status-icon:hover {
+            transform: scale(1.2);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .tooltip {
+            position: relative;
+            cursor: help;
+            z-index: 1001;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-darker);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            white-space: nowrap;
+            font-size: 0.85rem;
+
+            border: 1px solid var(--border);
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+            }
+
+            th,
+            td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>📋 Sistema de Control de Fichaje</h1>
+            <p class="subtitle">IES Polígono Sur - Registro de Asistencia del Profesorado</p>
+        </header>
+
+        <div class="controls">
+            <div class="file-upload">
+                <label for="csvFile">
+                    📁 Cargar Archivo CSV
+                </label>
+                <input type="file" id="csvFile" accept=".csv">
+                <span class="file-name" id="fileName">Ningún archivo seleccionado</span>
+            </div>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="searchTeacher">Buscar Profesor/a</label>
+                    <input type="text" id="searchTeacher" placeholder="Nombre del profesor/a...">
+                </div>
+                <div class="filter-group">
+                    <label for="filterStatus">Filtrar por Estado</label>
+                    <select id="filterStatus">
+                        <option value="all">Todos</option>
+                        <option value="complete">Completo (✓)</option>
+                        <option value="partial">Parcial (⚠)</option>
+                        <option value="missing">Falta (✗)</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="sortBy">Ordenar por</label>
+                    <select id="sortBy">
+                        <option value="name">Nombre</option>
+                        <option value="score">Puntuación de Uso</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="dateFrom">Desde</label>
+                    <input type="date" id="dateFrom">
+                </div>
+                <div class="filter-group">
+                    <label for="dateTo">Hasta</label>
+                    <input type="date" id="dateTo">
+                </div>
+            </div>
+        </div>
+
+        <div class="stats" id="stats" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-label">Total Profesores</div>
+                <div class="stat-value" id="totalTeachers">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Días Registrados</div>
+                <div class="stat-value" id="totalDays">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Fichajes Completos</div>
+                <div class="stat-value" id="completeCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Fichajes Incompletos</div>
+                <div class="stat-value" id="incompleteCount">0</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-wrapper" id="tableWrapper">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📊</div>
+                    <h2>No hay datos cargados</h2>
+                    <p>Por favor, carga el archivo CSV para ver el registro de fichajes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let attendanceData = [];
+        let teachers = [];
+        let dates = [];
+        let filteredData = [];
+
+        // CSV File Upload Handler
+        document.getElementById('csvFile').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('fileName').textContent = file.name;
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    parseCSV(e.target.result);
+                };
+                // Use ISO-8859-1 encoding to properly handle Spanish characters
+                reader.readAsText(file, 'ISO-8859-1');
+            }
+        });
+
+        // Parse CSV Data
+        function parseCSV(csvText) {
+            const lines = csvText.split('\n');
+            const records = [];
+
+            // Skip header
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+
+                // Parse CSV line (handle quoted fields)
+                const matches = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+                if (!matches || matches.length < 6) continue;
+
+                const record = {
+                    type: matches[0].replace(/"/g, ''),
+                    location: matches[1].replace(/"/g, ''),
+                    datetime: matches[2].replace(/"/g, ''),
+                    method: matches[3].replace(/"/g, ''),
+                    observations: matches[4].replace(/"/g, ''),
+                    name: matches[5].replace(/"/g, ''),
+                    approved: matches[6] ? matches[6].replace(/"/g, '') : ''
+                };
+
+                records.push(record);
+            }
+
+            processAttendanceData(records);
+        }
+
+        // Process Attendance Data
+        function processAttendanceData(records) {
+            const teacherMap = new Map();
+
+            records.forEach(record => {
+                if (!record.name || !record.datetime) return;
+
+                // Parse date (format: DD/MM/YYYY HH:MM)
+                const dateParts = record.datetime.split(' ')[0].split('/');
+                if (dateParts.length !== 3) return;
+
+                const date = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; // YYYY-MM-DD
+                const teacher = record.name;
+
+                // Initialize teacher data
+                if (!teacherMap.has(teacher)) {
+                    teacherMap.set(teacher, new Map());
+                }
+
+                const teacherDates = teacherMap.get(teacher);
+                if (!teacherDates.has(date)) {
+                    teacherDates.set(date, {
+                        hasEntry: false,
+                        hasExit: false,
+                        isLeave: false,
+                        records: []
+                    });
+                }
+
+                const dayData = teacherDates.get(date);
+                dayData.records.push(record);
+
+                // Process record type
+                switch (record.type) {
+                    case 'ENTRADA':
+                        dayData.hasEntry = true;
+                        break;
+                    case 'SALIDA':
+                        dayData.hasExit = true;
+                        break;
+                    case 'SOL. ENTRADA':
+                        dayData.hasEntry = true;
+                        break;
+                    case 'SOL. SALIDA':
+                        dayData.hasExit = true;
+                        break;
+                    case 'SOL. ENTRADA/SALIDA':
+                        dayData.hasEntry = true;
+                        dayData.hasExit = true;
+                        break;
+                    case 'BAJA':
+                        dayData.isLeave = true;
+                        break;
+                }
+            });
+
+            // Convert to array and sort
+            teachers = Array.from(teacherMap.keys()).sort();
+            const allDates = new Set();
+
+            teacherMap.forEach(dates => {
+                dates.forEach((_, date) => allDates.add(date));
+            });
+
+            dates = Array.from(allDates).sort();
+
+            // Build attendance data
+            attendanceData = teachers.map(teacher => {
+                const teacherDates = teacherMap.get(teacher);
+                const attendance = {};
+
+                dates.forEach(date => {
+                    if (teacherDates.has(date)) {
+                        attendance[date] = teacherDates.get(date);
+                    } else {
+                        attendance[date] = {
+                            hasEntry: false,
+                            hasExit: false,
+                            isLeave: false,
+                            records: []
+                        };
+                    }
+                });
+
+                return {
+                    name: teacher,
+                    attendance: attendance,
+                    score: 0 // Will be calculated later
+                };
+            });
+
+            filteredData = [...attendanceData];
+            renderTable();
+            updateStats();
+            setupFilters();
+        }
+
+        // Render Table
+        function renderTable() {
+            const wrapper = document.getElementById('tableWrapper');
+
+            if (filteredData.length === 0) {
+                wrapper.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <h2>No se encontraron resultados</h2>
+                        <p>Intenta ajustar los filtros de búsqueda</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<table><thead><tr>';
+            html += '<th class="teacher-col">Profesor/a</th>';
+
+            dates.forEach(date => {
+                const [year, month, day] = date.split('-');
+                html += `<th class="tooltip" data-tooltip="${date}">${day}/${month}</th>`;
+            });
+
+            html += '</tr></thead><tbody>';
+
+            filteredData.forEach(teacher => {
+                html += '<tr>';
+                html += `<td class="teacher-name">${teacher.name}</td>`;
+
+                dates.forEach(date => {
+                    const dayData = teacher.attendance[date];
+                    const status = getStatus(dayData);
+                    const icon = getStatusIcon(status);
+                    const tooltip = getTooltip(dayData, date);
+
+                    html += `<td><span class="status-icon status-${status} tooltip" data-tooltip="${tooltip}">${icon}</span></td>`;
+                });
+
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            wrapper.innerHTML = html;
+            document.getElementById('stats').style.display = 'grid';
+        }
+
+        // Get Status
+        function getStatus(dayData) {
+            if (dayData.isLeave) return 'leave';
+            if (dayData.hasEntry && dayData.hasExit) return 'complete';
+            if (dayData.hasEntry || dayData.hasExit) return 'partial';
+            return 'missing';
+        }
+
+        // Get Status Icon
+        function getStatusIcon(status) {
+            switch (status) {
+                case 'complete': return '✓';
+                case 'partial': return '⚠';
+                case 'leave': return '—';
+                case 'missing': return '✗';
+                default: return '?';
+            }
+        }
+
+        // Normalize text by removing accents and diacritics
+        function normalizeText(text) {
+            return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        }
+
+        // Get Tooltip
+        function getTooltip(dayData, date) {
+            if (dayData.isLeave) return 'Baja/Ausencia';
+
+            const parts = [];
+            if (dayData.hasEntry) parts.push('Entrada ✓');
+            else parts.push('Entrada ✗');
+
+            if (dayData.hasExit) parts.push('Salida ✓');
+            else parts.push('Salida ✗');
+
+            return parts.join(' | ');
+        }
+
+        // Calculate Teacher Score (higher score = less usage of attendance system)
+        function calculateTeacherScore(teacher, dateRange = null) {
+            let score = 0;
+            const datesToCheck = dateRange || dates;
+
+            datesToCheck.forEach(date => {
+                const dayData = teacher.attendance[date];
+                const status = getStatus(dayData);
+
+                // Scoring system:
+                // partial (⚠) = 1 point
+                // missing (✗) = 2 points
+                // complete (✓) = 0 points
+                // leave (—) = 0 points
+                if (status === 'partial') {
+                    score += 1;
+                } else if (status === 'missing') {
+                    score += 2;
+                }
+            });
+
+            return score;
+        }
+
+        // Update Stats
+        function updateStats() {
+            document.getElementById('totalTeachers').textContent = teachers.length;
+            document.getElementById('totalDays').textContent = dates.length;
+
+            let complete = 0;
+            let incomplete = 0;
+
+            attendanceData.forEach(teacher => {
+                dates.forEach(date => {
+                    const dayData = teacher.attendance[date];
+                    const status = getStatus(dayData);
+                    if (status === 'complete') complete++;
+                    else if (status === 'partial' || status === 'missing') incomplete++;
+                });
+            });
+
+            document.getElementById('completeCount').textContent = complete;
+            document.getElementById('incompleteCount').textContent = incomplete;
+        }
+
+        // Setup Filters
+        function setupFilters() {
+            // Set date range defaults
+            if (dates.length > 0) {
+                const [firstYear, firstMonth, firstDay] = dates[0].split('-');
+                const [lastYear, lastMonth, lastDay] = dates[dates.length - 1].split('-');
+                document.getElementById('dateFrom').value = dates[0];
+                document.getElementById('dateTo').value = dates[dates.length - 1];
+            }
+
+            // Search filter
+            document.getElementById('searchTeacher').addEventListener('input', applyFilters);
+            document.getElementById('filterStatus').addEventListener('change', applyFilters);
+            document.getElementById('sortBy').addEventListener('change', applyFilters);
+            document.getElementById('dateFrom').addEventListener('change', applyFilters);
+            document.getElementById('dateTo').addEventListener('change', applyFilters);
+        }
+
+        // Apply Filters
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchTeacher').value.toLowerCase();
+            const statusFilter = document.getElementById('filterStatus').value;
+            const sortBy = document.getElementById('sortBy').value;
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+
+            // Get date range for score calculation
+            let dateRange = dates;
+            if (dateFrom || dateTo) {
+                dateRange = dates.filter(date => {
+                    if (dateFrom && date < dateFrom) return false;
+                    if (dateTo && date > dateTo) return false;
+                    return true;
+                });
+            }
+
+            filteredData = attendanceData.filter(teacher => {
+                // Name filter (accent-insensitive)
+                if (searchTerm && !normalizeText(teacher.name).includes(normalizeText(searchTerm))) {
+                    return false;
+                }
+
+                // Status filter
+                if (statusFilter !== 'all') {
+                    let hasMatchingStatus = false;
+                    dateRange.forEach(date => {
+                        const status = getStatus(teacher.attendance[date]);
+                        if (status === statusFilter) {
+                            hasMatchingStatus = true;
+                        }
+                    });
+                    if (!hasMatchingStatus) return false;
+                }
+
+                return true;
+            });
+
+            // Calculate scores for each teacher based on the date range
+            filteredData.forEach(teacher => {
+                teacher.score = calculateTeacherScore(teacher, dateRange);
+            });
+
+            // Sort based on selected option
+            if (sortBy === 'score') {
+                // Sort by score descending (higher score = worse attendance)
+                filteredData.sort((a, b) => b.score - a.score);
+            } else {
+                // Sort by name alphabetically
+                filteredData.sort((a, b) => a.name.localeCompare(b.name));
+            }
+
+            renderTable();
+        }
+    </script>
+</body>
+
+</html>
